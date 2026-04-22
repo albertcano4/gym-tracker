@@ -1,23 +1,31 @@
-<!DOCTYPE html>
-<html lang="ca">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Gym Tracker">
-<meta name="theme-color" content="#0a0a0f">
-<meta name="description" content="La teva rutina de gym personalitzada">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>Gym Tracker</title>
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<div class="app" id="app"></div>
-<script src="js/data.js"></script>
-<script src="js/timer.js"></script>
-<script src="js/render.js"></script>
-<script src="js/app.js"></script>
-</body>
-</html>
+const CACHE = "gym-tracker-v1";
+const ASSETS = [
+  "/gym-tracker/",
+  "/gym-tracker/index.html",
+  "/gym-tracker/style.css",
+  "/gym-tracker/data.js",
+  "/gym-tracker/timer.js",
+  "/gym-tracker/render.js",
+  "/gym-tracker/app.js",
+  "/gym-tracker/manifest.json",
+  "/gym-tracker/icon-192.png",
+  "/gym-tracker/icon-512.png"
+];
+ 
+self.addEventListener("install", e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  self.skipWaiting();
+});
+ 
+self.addEventListener("activate", e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+ 
+self.addEventListener("fetch", e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
+  );
+});
