@@ -1,41 +1,24 @@
-function bindAll() {
-  document.querySelectorAll("[data-a]").forEach(function(el) {
-    el.onclick = null;
-    el.addEventListener("click", onClick);
-    if (el.tagName === "INPUT") el.addEventListener("input", onInput);
-  });
+{
+  "name": "Gym Tracker",
+  "short_name": "Gym",
+  "description": "La teva rutina de gym personalitzada",
+  "start_url": "/gym-tracker/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
-
-function onInput(e) {
-  var el = e.target;
-  if (el.dataset.a === "winput") S.wi[el.dataset.d + "-" + el.dataset.i] = el.value;
-}
-
-function onClick(e) {
-  var el = e.currentTarget, a = el.dataset.a;
-  if      (a === "nav")      { S.view = el.dataset.v; render(); }
-  else if (a === "setday")   { S.day = parseInt(el.dataset.v); render(); }
-  else if (a === "goworkout"){ S.view = "workout"; render(); }
-  else if (a === "goback")   { S.view = "home"; render(); }
-  else if (a === "toggleex") { var i = parseInt(el.dataset.i); S.openEx = S.openEx === i ? null : i; render(); }
-  else if (a === "mset")     { e.stopPropagation(); markSet(parseInt(el.dataset.d), parseInt(el.dataset.i), parseInt(el.dataset.t)); }
-  else if (a === "markdone") { markDone(parseInt(el.dataset.d)); }
-  else if (a === "wsave")    { saveW(parseInt(el.dataset.d), parseInt(el.dataset.i)); }
-  else if (a === "tstart")   { tStart(); }
-  else if (a === "tpause")   { tPause(); }
-  else if (a === "treset")   { tReset(); }
-  else if (a === "tpreset")  { tSetTotal(parseInt(el.dataset.s)); }
-  else if (a === "tadj")     { tAdj(parseInt(el.dataset.d)); }
-}
-
-// Register Service Worker for PWA
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function() {
-    navigator.serviceWorker.register("/gym-tracker/sw.js")
-      .then(function(reg) { console.log("SW registrat:", reg.scope); })
-      .catch(function(err) { console.log("SW error:", err); });
-  });
-}
-
-// Init
-render();
