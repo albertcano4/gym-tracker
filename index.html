@@ -1,86 +1,22 @@
-function tStart() {
-  if (S.T.run) return;
-  if (S.T.rem <= 0) { S.T.rem = S.T.total; S.T.fin = false; }
-  S.T.run = true; S.T.fin = false;
-  S.T.iid = setInterval(function() {
-    S.T.rem--;
-    if (S.T.rem <= 0) {
-      S.T.rem = 0; S.T.run = false; S.T.fin = true;
-      clearInterval(S.T.iid); tAlert();
-    } else { tPatch(); }
-  }, 1000);
-  tPatch();
-}
-
-function tPause() { clearInterval(S.T.iid); S.T.run = false; tPatch(); }
-
-function tReset() {
-  clearInterval(S.T.iid);
-  S.T.run = false; S.T.fin = false; S.T.rem = S.T.total;
-  tPatch();
-}
-
-function tSetTotal(s) {
-  clearInterval(S.T.iid);
-  S.T.run = false; S.T.fin = false; S.T.total = s; S.T.rem = s;
-  tPatch();
-}
-
-function tAdj(d) { tSetTotal(Math.max(15, S.T.total + d)); }
-
-function tAlert() {
-  if (navigator.vibrate) navigator.vibrate([300,100,300,100,500]);
-  try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [0, .35, .7].forEach(function(o) {
-      var osc = ctx.createOscillator(), g = ctx.createGain();
-      osc.connect(g); g.connect(ctx.destination);
-      osc.frequency.value = 880; osc.type = "sine";
-      g.gain.setValueAtTime(.4, ctx.currentTime + o);
-      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + o + .3);
-      osc.start(ctx.currentTime + o);
-      osc.stop(ctx.currentTime + o + .35);
-    });
-  } catch(e) {}
-  tPatch();
-}
-
-function tPatch() {
-  if (S.view !== "timer") return;
-  var el = document.getElementById("tdyn");
-  if (!el) { render(); return; }
-  el.innerHTML = tHTML();
-  bindAll();
-}
-
-function tHTML() {
-  var t = S.T, R = 90, C = 2 * Math.PI * R;
-  var pct = t.total > 0 ? t.rem / t.total : 0;
-  var off = (C * (1 - pct)).toFixed(2);
-  var fc = t.fin ? "fin" : (t.rem <= 10 ? "warn" : "");
-  var mm = String(Math.floor(t.rem / 60)).padStart(2, "0");
-  var ss = String(t.rem % 60).padStart(2, "0");
-  var P = [60, 90, 120, 180];
-  var presets = P.map(function(p) {
-    return '<button class="t-preset' + (t.total === p && !t.run ? " active" : "") +
-      '" data-a="tpreset" data-s="' + p + '">' + (p < 60 ? p + "s" : p/60 + "min") + "</button>";
-  }).join("");
-  return (t.fin ? '<div class="t-alert">✓ DESCANS ACABAT — TORNA A LA FEINA! 💪</div>' : "") +
-    '<div class="tcircle-wrap"><div class="tcircle-container">' +
-    '<svg class="tsvg" width="210" height="210" viewBox="0 0 210 210">' +
-    '<circle class="t-track" cx="105" cy="105" r="' + R + '"/>' +
-    '<circle class="t-fill ' + fc + '" cx="105" cy="105" r="' + R + '"' +
-    ' stroke-dasharray="' + C.toFixed(2) + '" stroke-dashoffset="' + off + '"/>' +
-    '</svg><div class="t-text"><div class="t-digits">' + mm + ":" + ss + "</div>" +
-    '<div class="t-label">' + (t.run ? "descansant" : t.fin ? "llest!" : "preparat") + "</div></div></div></div>" +
-    '<div class="t-presets">' + presets + "</div>" +
-    '<div class="t-custom">' +
-    '<button class="t-adj" data-a="tadj" data-d="-15">&#8722;</button>' +
-    '<span class="t-val">' + t.total + "s</span>" +
-    '<button class="t-adj" data-a="tadj" data-d="15">+</button>' +
-    '<span class="t-clabel">personalitzat</span></div>' +
-    '<div class="t-btns">' +
-    (!t.run && !t.fin ? '<button class="btn btn-primary" data-a="tstart" style="font-size:21px">&#9654; INICIAR</button>' : "") +
-    (t.run ? '<button class="btn btn-ghost" data-a="tpause" style="font-size:21px">&#9646;&#9646; PAUSA</button>' : "") +
-    '<button class="btn btn-ghost" data-a="treset">&#8635; RESET</button></div>';
-}
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gym Tracker">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Gym Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="data.js"></script>
+<script src="timer.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
